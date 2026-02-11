@@ -1,0 +1,17 @@
+{
+  "name": "data-202602",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun server.js --dev",
+    "build": "rm -rf dist && cp -r src dist",
+    "prod": "bun run build && NODE_ENV=production bun server.js"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

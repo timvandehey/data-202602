@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juris Counter</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000"/>
+    <script src="https://cdn.jsdelivr.net/npm/pouchdb@8.0.1/dist/pouchdb.min.js"></script>
+    <script src="juris.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+    <script type="module">
+        import Counter from './components/Counter.js';
+        import { dbService } from './db.js';
+
+        const juris = new Juris({
+            states: {
+                count: 0
+            },
+            components: {
+                Counter: Counter
+            },
+            services: {
+                db: dbService
+            }
+        });
+
+        juris.layout = {
+            div: {
+                children: [
+                    {h1: {text: 'Juris.js Counter PWA'}},
+                    { Counter: {} }
+                ]
+            }
+        };
+        
+        // Initialize the app by reading the count from the DB
+        async function init() {
+            try {
+                const doc = await dbService.read('counter');
+                juris.setState('count', doc.value);
+            } catch (err) {
+                if (err.name === 'not_found') {
+                    // if not found, create it
+                    await dbService.write({ _id: 'counter', value: 0 });
+                } else {
+                    console.error('Error initializing counter:', err);
+                }
+            }
+            juris.render();
+        }
+
+        init();
+    </script>
+    <script>
+        if ('serviceWorker' in navigator && window.DEV_MODE) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(registration => {
+                    console.log('SW registered: ', registration);
+                }).catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juris App</title>    
+    <script src="juris.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+    <script>
+        const juris = new Juris()
+        juris.layout = {div: {
+            children: [
+                {span: {text: () => juris.getState('count', 0)}},
+                {button: {
+                    text: () => 'Increment', 
+                    onclick: () => {
+                        juris.setState('count', juris.getState('count', 0) + 1)
+                    }
+                }}
+            ]
+        }};                
+        juris.render();
+    </script>
+</body>
+</html>
