@@ -4,9 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun server.js --dev",
-    "build": "rm -rf dist && cp -r src dist",
-    "prod": "bun run build && NODE_ENV=production bun server.js"
+    "dev": "bun server.js --dev --port 3000",
+    "build": "bun build.js",
+    "prod": "bun run build && bun server.js --port 8000"
   },
   "devDependencies": {
     "@types/bun": "latest"

@@ -51,6 +51,11 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // Skip caching for database proxy requests
+  if (event.request.url.includes('/db-proxy')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {

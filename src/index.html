@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Juris Counter</title>
-    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
     <meta name="theme-color" content="#000000"/>
     <script src="https://cdn.jsdelivr.net/npm/pouchdb@8.0.1/dist/pouchdb.min.js"></script>
     <script src="juris.js"></script>
@@ -27,10 +27,13 @@
             }
         });
 
+        globalThis.juris = juris;
+
+
         juris.layout = {
             div: {
                 children: [
-                    {h1: {text: 'Juris.js Counter PWA'}},
+                    {h1: {text: 'Juris.js Counter'}},
                     { Counter: {} }
                 ]
             }
@@ -43,27 +46,24 @@
                 juris.setState('count', doc.value);
             } catch (err) {
                 if (err.name === 'not_found') {
-                    // if not found, create it
                     await dbService.write({ _id: 'counter', value: 0 });
                 } else {
                     console.error('Error initializing counter:', err);
                 }
             }
+
+            // Watch for changes in the DB (local or synced from remote)
+            dbService.watch((change) => {
+                if (change.id === 'counter' && change.doc) {
+                    console.log('Counter updated in DB, syncing UI:', change.doc.value);
+                    juris.setState('count', change.doc.value);
+                }
+            });
+
             juris.render();
         }
 
         init();
-    </script>
-    <script>
-        if ('serviceWorker' in navigator && window.DEV_MODE) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(registration => {
-                    console.log('SW registered: ', registration);
-                }).catch(registrationError => {
-                    console.log('SW registration failed: ', registrationError);
-                });
-            });
-        }
     </script>
 </body>
 </html>

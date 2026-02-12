@@ -3,6 +3,23 @@
 // This module assumes PouchDB is loaded via a <script> tag in the HTML.
 const db = new PouchDB('juris-db');
 
+// Sync with remote CouchDB via the server proxy
+const remoteDB = window.location.origin + '/db-proxy';
+db.sync(remoteDB, {
+  live: true,
+  retry: true
+}).on('change', function (info) {
+  console.log('Sync change:', info);
+}).on('paused', function (err) {
+  console.log('Sync paused:', err);
+}).on('active', function () {
+  console.log('Sync active');
+}).on('denied', function (err) {
+  console.error('Sync denied:', err);
+}).on('error', function (err) {
+  console.error('Sync error:', err);
+});
+
 export const dbService = {
   /**
    * Creates a new document in the database.
@@ -116,5 +133,18 @@ export const dbService = {
       console.error('Error querying documents:', err);
       throw err;
     }
+  },
+
+  /**
+   * Watches for changes in the database.
+   * @param {function} callback - Function called when a change occurs.
+   * @returns {object} The changes listener which can be canceled.
+   */
+  watch(callback) {
+    return db.changes({
+      since: 'now',
+      live: true,
+      include_docs: true
+    }).on('change', callback);
   }
 };
